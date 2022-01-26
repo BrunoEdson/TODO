@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/app.css">
+    </head>
+    <body>
+        <nav class="navbar"> 
+            <div class="logo">
+                <span><strong>TODO List App</strong></span>
+                <span><strong>app made for <span class="highlight">fun</span></strong></span>
+            </div>
+            <form class='create-form' action="/" method="POST">
+                <label>Type your task to save:</label>
+                <input type="text" name="task" class="task-text" id="task_text">
+                <button class="button-34" onclick="addData()">add new Task</button>
+            </form>
+        </nav>
+        <div class="container">
+            <h2>Your tasks</h2>
+        <table id="tb">
+            <tr>
+                <th>Task name</th>
+                <th>Date</th>
+                <th>Done?</th>
+                <th>Delete</th>
+            </tr>
+            <tbody>
+                <% allData.forEach(function(d){ %>
+                    <tr>
+                        <td><%= d.name %></td>
+                        <td><%= d.date %></td>
+                        <td><%= d.done %></td>
+                        <td><button id="del" class="button-34" onclick="deleteData(this)">x</button></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        <br><br><br>
+        <p>created by bruno</p>
+    </div>
+    </body>
+    <script>
+
+        function deleteData(o){
+
+            let xhr = new XMLHttpRequest();
+            let url = "http://localhost:3000/";
+       
+            // open a connection
+            xhr.open("POST", url, true);
+ 
+            // Set the request header i.e. which type of content you are sending
+            xhr.setRequestHeader("Content-Type", "application/json");
+ 
+            // Create a state change callback
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+ 
+                    // Print received data from server
+                    console.log(this.responseText)
+ 
+                }
+            };
+ 
+            // Converting JSON data to string
+            const p = o.parentNode.parentNode
+            let tbData = {name: p.cells[0].innerText, date: p.cells[1].innerText}
+            p.parentNode.removeChild(p)
+            var delData = JSON.stringify({ "com": 'delete', "data": tbData });
+            xhr.send(delData)
+        }
+        
+        function addData(){
+            let xhr = new XMLHttpRequest();
+            let url = "http://localhost:3000/";
+       
+            // open a connection
+            xhr.open("POST", url, true);
+ 
+            // Set the request header i.e. which type of content you are sending
+            xhr.setRequestHeader("Content-Type", "application/json");
+ 
+            // Create a state change callback
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+ 
+                    // Print received data from server
+                    console.log(this.responseText)
+ 
+                }
+            };
+            const taskName = document.getElementById('task_text').value
+            var data = JSON.stringify({ "com": 'create', "data": taskName });
+
+            createRow()
+            xhr.send(data)
+        }
+
+        function createRow(){
+            const table = document.getElementById('tb')
+            const btn = document.createElement('button')
+            btn.innerHTML = 'x'
+            btn.id = 'del'
+            btn.className = "button-34"
+            btn.addEventListener('click', ()=>{deleteData(btn)}, false)
+            
+            const row = table.insertRow(table.length)
+            const task = document.getElementById('task_text').value
+            const date = new Date()
+
+            row.insertCell(0).innerHTML = task
+            row.insertCell(1).innerHTML = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
+            row.insertCell(2).innerHTML = 'no'
+            row.insertCell(3).appendChild(btn)
+        }
+
+    </script>
+</html>
